@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -24,8 +25,6 @@ func RenameDirPattern(dir string, pattern string) error {
 		}
 
 		filename := file.Name()
-		// path := filepath.Join(dir, filename)
-		fmt.Println("before: ", filename)
 
 		replacer := strings.NewReplacer(
 			"X", "[A-z]",
@@ -44,7 +43,15 @@ func RenameDirPattern(dir string, pattern string) error {
 		}
 
 		newFilename := re.ReplaceAll([]byte(filename), []byte(""))
-		fmt.Println("after: ", string(newFilename))
+		fmt.Printf("rename '%s' to '%s'", filename, newFilename)
+
+		path := filepath.Join(dir, filename)
+		newPath := filepath.Join(dir, string(newFilename))
+
+		err = os.Rename(path, newPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
