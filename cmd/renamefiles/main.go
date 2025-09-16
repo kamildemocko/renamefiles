@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/kamildemocko/renamefiles/internal/backuper"
 )
 
 var (
@@ -19,6 +21,12 @@ func RenameDirPattern(dir string, pattern string) error {
 	if err != nil {
 		return err
 	}
+
+	bckpr, err := backuper.NewBackuper(dir, "backup.zip")
+	if err != nil {
+		return err
+	}
+	defer bckpr.Close()
 
 	for _, file := range files {
 		if file.Type().IsDir() {
@@ -48,6 +56,11 @@ func RenameDirPattern(dir string, pattern string) error {
 
 		path := filepath.Join(dir, filename)
 		newPath := filepath.Join(dir, string(newFilename))
+
+		err = bckpr.AddFile(path)
+		if err != nil {
+			return err
+		}
 
 		err = os.Rename(path, newPath)
 		if err != nil {
@@ -87,8 +100,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		os.Exit(1)
 	}
-
-	fmt.Println(dir)
 
 	err = RenameDirPattern(dir, pattern)
 	if err != nil {
