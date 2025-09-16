@@ -30,6 +30,6 @@ Where:
 # Remove "_XXX" suffix from all files in current directory (File_ABX.txt -> File.txt)
 renamefiles -p "_XXX"
 
-# Remove "_(NN)" pattern (where NN are digits) from files in specific directory (File_22.txt -> File.txt)
+# Remove "_(NN)" pattern (where NN are digits) from files in specific directory (File_(22).txt -> File.txt)
 renamefiles -p "_(NN)" /path/to/directory
 ```
