@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,9 +9,9 @@ import (
 	"strings"
 )
 
-const (
-	pattern2 = "_(NN)"
-	dir      = `.\test`
+var (
+	pattern string
+	dir     string
 )
 
 func RenameDirPattern(dir string, pattern string) error {
@@ -43,7 +44,7 @@ func RenameDirPattern(dir string, pattern string) error {
 		}
 
 		newFilename := re.ReplaceAll([]byte(filename), []byte(""))
-		fmt.Printf("rename '%s' to '%s'", filename, newFilename)
+		fmt.Printf("rename '%s' to '%s'\n", filename, newFilename)
 
 		path := filepath.Join(dir, filename)
 		newPath := filepath.Join(dir, string(newFilename))
@@ -57,9 +58,41 @@ func RenameDirPattern(dir string, pattern string) error {
 	return nil
 }
 
+func parseArgs() error {
+	var err error
+
+	flag.StringVar(&pattern, "p", "", "example: _(NN) | _XXX")
+	flag.Parse()
+
+	args := flag.Args()
+	dir = strings.Join(args, " ")
+	if dir == "" {
+		dir, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+	}
+
+	if pattern == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	return nil
+}
+
 func main() {
-	err := RenameDirPattern(dir, pattern2)
+	err := parseArgs()
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(dir)
+
+	err = RenameDirPattern(dir, pattern)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error renaming files: %s", err)
+		os.Exit(1)
 	}
 }
