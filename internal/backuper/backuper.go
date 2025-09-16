@@ -17,12 +17,12 @@ func NewBackuper(dir string, filename string) (Backuper, error) {
 	fn := filepath.Join(dir, filename)
 	file, err := os.Create(fn)
 	if err != nil {
-		return Backuper{}, nil
+		return Backuper{}, err
 	}
 
 	w := zip.NewWriter(file)
 
-	return Backuper{filename, file, w}, err
+	return Backuper{filename, file, w}, nil
 }
 
 func (b *Backuper) Close() {
